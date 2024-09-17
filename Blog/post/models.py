@@ -2,6 +2,11 @@ from django.db import models
 from django.db.models.functions import Now
 from django.conf import settings
 
+class PublishedManager(models.Manager):
+    def get_queryset(self):
+        return (super().get_queryset().filter(status=Post.Status.PUBLISHED))
+
+
 class Post(models.Model):
 
     class Status(models.TextChoices):
@@ -24,6 +29,9 @@ class Post(models.Model):
         choices=Status,
         default=Status.DRAFT
     )
+
+    objects = models.Manager() # El manejador por defecto
+    published = PublishedManager() # El manejador customizado
 
     class Meta:
         ordering = ['-publish']
