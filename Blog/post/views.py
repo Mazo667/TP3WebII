@@ -23,7 +23,7 @@ def post_share(request, post_id):
             subject = (f"{cd['name']} ({cd['email']}) "
                        f"recomienda que leas {post.title}")
             message = (f"Lee {post.title} en {post_url}\n\n"
-                       f"{cd['name']}\'s comentarios: {cd['comments']}")
+                       f"{cd['name']} comentario: {cd['comments']}")
             send_mail(subject=subject,message=message,from_email=None,recipient_list=[cd['to']])
             sent = True
     else:
