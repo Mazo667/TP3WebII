@@ -1,40 +1,48 @@
 {% extends "base.html" %}
 {% block title %}{{ post.title }}{% endblock %}
-    {% block content %}
-        <h1>{{ post.title }}</h1>
-        <p class="date">
-            Publicado {{ post.publish }} por {{ post.author }}
-        </p>
-        {{ post.body|linebreaks }}
+{% block content %}
+    <h1>{{ post.title }}</h1>
+    <p class="date">
+        Publicado {{ post.publish }} por {{ post.author }}
+    </p>
+    {{ post.body|linebreaks }}
+    <p>
+        <a href="{% url 'post:post_share' post.id %}">Comparte este post</a>
+    </p>
+
+    {% if request.user == post.author %}
+        <a href="{% url 'post:confirm_delete_post' post.id %}" class="btn btn-danger">Eliminar este Post</a>
+        <a href="{% url 'post:edit_post' post.id %}" class="btn btn-warning">Modificar este Post</a> <!-- Edit button -->
+    {% endif %}
+
+
+
+    <hr>
+    <h2>Post Similares</h2>
+    {% for similar_post in similar_posts %}
         <p>
-            <a href="{% url 'post:post_share' post.id %}">Comparte este post</a>
+            <a href="{{ similar_post.get_absolute_url }}">{{ similar_post.title }}</a>
         </p>
-        <hr>
-        <h2>Post Similares</h2>
-        {% for post in similar_posts %}
-            <p>
-                <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
-            </p>
-            {% empty %}
-                No hay posts similares.
-        {% endfor %}
-        <hr>
-        {% with comments.count as total_comments %}
-            <h2>
-                {{ total_comments }} Comentario{{ total_comments|pluralize }}
-            </h2>
-        {% endwith %}
-        {% for comment in comments %}
-            <div class="comment">
+    {% empty %}
+        No hay posts similares.
+    {% endfor %}
+    
+    <hr>
+    {% with comments.count as total_comments %}
+        <h2>{{ total_comments }} Comentario{{ total_comments|pluralize }}</h2>
+    {% endwith %}
+    
+    {% for comment in comments %}
+        <div class="comment">
             <p class="info">
-                Comentario {{ forloop.counter }} de {{ comment.name }}
-                {{ comment.created }}
+                Comentario {{ forloop.counter }} de {{ comment.name }} {{ comment.created }}
             </p>
-                {{ comment.body|linebreaks }}
-            </div>
-                {% empty %}
+            {{ comment.body|linebreaks }}
+        </div>
+        {% empty %}
             <p>No hay comentarios.</p>
-        {% endfor %}
-        <hr>
-        {% include "post/includes/comment_form.html" %}
-    {% endblock %}
+    {% endfor %}
+    
+    <hr>
+    {% include "post/includes/comment_form.html" %}
+{% endblock %}

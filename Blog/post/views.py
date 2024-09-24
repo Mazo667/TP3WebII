@@ -1,19 +1,16 @@
 from django.shortcuts import render
 from .models import Post
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.views.generic import ListView
-from .forms import EmailPostForm, CommentForm
+from .forms import EmailPostForm, CommentForm, PostForm
 from django.core.mail import send_mail
 from django.views.decorators.http import require_POST
 from taggit.models import Tag
 from django.db.models import Count
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login
+from django.contrib import messages
 
-class PostListView(ListView):
-    queryset = Post.published.all()
-    context_object_name = 'posts'
-    paginate_by = 3
-    template_name = 'post/list.html'
 
 def post_share(request, post_id):
     post = get_object_or_404(Post,id=post_id,status=Post.Status.PUBLISHED)
@@ -33,7 +30,7 @@ def post_share(request, post_id):
         form = EmailPostForm()
     return render(request,'post/share.html',{'post':post,'form':form,'sent':sent})
 
-
+@login_required
 def post_list(request, tag_slug=None):
     post_list = Post.published.all()
     tag = None
@@ -85,3 +82,64 @@ def post_comment(request,post_id):
         comment.post = post
         comment.save()
     return render(request,'post/comment.html',{'post':post,'form':form,'comment':comment})
+
+@login_required
+def delete_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
+    if request.user == post.author:
+        post.delete()
+        messages.success(request, "Post eliminado correctamente.")
+        return redirect('post:post_list') 
+    else:
+        messages.error(request, "No tienes permiso para eliminar este post.")
+        return redirect('post:post_detail', post_id=post.id)
+    
+@login_required
+def edit_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
+    if request.user != post.author:
+        messages.error(request, "No tienes permiso para editar este post.")
+        return redirect('post:post_detail', post_id=post.id)
+
+    if request.method == "POST":
+        form = PostForm(request.POST, instance=post)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Post actualizado correctamente.")
+            return redirect('post:post_list') 
+    else:
+        form = PostForm(instance=post)
+
+    return render(request, "post/edit_post.html", {'form': form, 'post': post})
+
+@login_required
+def confirm_delete_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
+    if request.user != post.author:
+        messages.error(request, "No tienes permiso para eliminar este post.")
+        return redirect('post:post_detail', post_id=post.id)
+
+    if request.method == "POST":
+        post.delete()
+        messages.success(request, "Post eliminado correctamente.")
+        return redirect('post:post_list') 
+
+    return render(request, "post/confirm_delete.html", {'post': post})
+
+@login_required
+def create_post(request):
+    if request.method == "POST":
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)  # Create a post instance but don't save it yet
+            post.author = request.user  # Set the author to the logged-in user
+            post.save()  # Save the post instance to the database
+            messages.success(request, "Post creado correctamente.")
+            return redirect('post:post_list')  # Redirect to the post list or another page
+    else:
+        form = PostForm()  # Create an empty form for GET requests
+
+    return render(request, "post/create_post.html", {'form': form})
