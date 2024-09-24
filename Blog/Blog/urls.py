@@ -20,5 +20,5 @@ from post.urls import urlpatterns
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('blog/',include('post.urls',namespace='post'))
+    path('posts/',include('post.urls',namespace='post'))
 ]
