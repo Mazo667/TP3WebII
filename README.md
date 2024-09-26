@@ -61,9 +61,9 @@ Asegúrate de tener instalado lo siguiente:
 ### Configuración del Entorno
 
 1. Crea un archivo '.env' en la raíz de tu directorio del proyecto para almacenar variables de entorno y completa los siguientes campos:
-    <span>EMAIL_HOST_USER=tu_email@gmail.com</span>
-    <span>EMAIL_HOST_PASSWORD=xxxx xxxx xxxx xxx</span>
-    <span>DEFAULT_FROM_EMAIL=Mi Blog <tu_email@gmail.com></span>
+    <span>EMAIL_HOST_USER=tu_email@gmail.com<br>
+    EMAIL_HOST_PASSWORD=xxxx xxxx xxxx xxx<br>
+    DEFAULT_FROM_EMAIL=Mi Blog <tu_email@gmail.com></span>
 
 ### Ejecutando la Aplicación
 
