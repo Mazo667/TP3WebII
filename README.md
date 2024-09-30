@@ -43,8 +43,8 @@ Asegúrate de tener instalado lo siguiente:
 1. Clona el repositorio:
 
    ```bash
-   git clone https://github.com/tuusuario/django-blog.git
-   cd django-blog
+   git clone https://github.com/Mazo667/TP3WebII.git
+   cd TP3WebII
     ```
 
 2. Crea un entorno virtual (opcional pero recomendado):
